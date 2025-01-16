@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+
+@layer base {
+  h3 {
+    @apply my-2 text-xl font-bold;
+  }
+  input {
+    @apply w-24 p-1 border border-gray-300 rounded-md;
+  }
+}
