@@ -1,11 +1,15 @@
-// import {$}
-
-// getter/setter Runes version
+// getter/setter version
+// does not need Runes at all !?
 export class GetSetTemps {
-	#c = $state(0);
-	#f = $state(32);
+	// NOTE these can be private or public, the reason #c is private here is solely so that we can mask it with the public getter/setter
+	// #c = $state(0);
+	pubfnogetter = $state(32);
+	// TODO why is this updating without $state ?
+	pubfnostate = 32;
+	// TODO so in the end, we can just do this !?
+	#c = 0;
+	#f = 32;
 
-	// NOTE pass-through works with reactivity !!
 	get c() {
 		return this.#c;
 	}
@@ -14,15 +18,17 @@ export class GetSetTemps {
 		return this.#f;
 	}
 
-	// NOTE this is great, since *both* values are set without any (mutual) reference
-	// NOTE we are not using $derived here, but a regular setter
 	set c(c: number) {
 		this.#c = c;
 		this.#f = c * (9 / 5) + 32;
+		this.pubfnogetter = this.#f;
+		this.pubfnostate = this.#f;
 	}
 
 	set f(f: number) {
 		this.#f = f;
+		this.pubfnogetter = this.#f;
+		this.pubfnostate = this.#f;
 		this.#c = ((f - 32) * 5) / 9;
 	}
 }
