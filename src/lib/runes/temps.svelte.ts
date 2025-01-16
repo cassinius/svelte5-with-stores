@@ -27,6 +27,7 @@ export class StateGetSetTemps {
 export class DeriveEffectTemps {
 	c = $state(0);
 	f = $state(32);
+	// NOTE these are just for the 1-way binding
 	f_derived = $derived((this.c * 9) / 5 + 32);
 	c_derived = $derived(((this.f - 32) * 5) / 9);
 	// NOTE for 2-way binding on Runes

@@ -25,9 +25,7 @@
 	},
 	"dependencies": {
 		"@tailwindcss/vite": "^4.0.0-beta.9",
-		"@xoid/svelte": "^0.5.2",
 		"nanostores": "^0.11.3",
-		"tailwindcss": "^4.0.0-beta.9",
-		"xoid": "^1.0.0-beta.12"
+		"tailwindcss": "^4.0.0-beta.9"
 	}
 }
