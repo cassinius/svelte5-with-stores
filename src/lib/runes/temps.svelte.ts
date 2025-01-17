@@ -75,19 +75,30 @@ export class StateGetSetTemps {
 }
 
 /**
- * NEW RUNES VERSION - DERIVED
- *
- * // NOTE derived cannot handle 2-way binding,
- * // NOTE since it is (explicitly?) a DAG concept.
+ * NEW RUNES VERSION - DERIVED "hook""
  */
-export class DeriveEffectTemps {
-	c = $state(0);
-	f = $state(32);
-	// NOTE these are just for the 1-way binding
-	f_derived = $derived((this.c * 9) / 5 + 32);
-	c_derived = $derived(((this.f - 32) * 5) / 9);
-	// NOTE for 2-way binding on Runes
-	// NOTE the $effects belonging to this must still run separately.
-	c_input: HTMLInputElement = null as unknown as HTMLInputElement;
-	f_input: HTMLInputElement = null as unknown as HTMLInputElement;
+export function TempsWithRunes(initialValue = 0) {
+	let c = $state(initialValue);
+	let f = $state((initialValue * 9) / 5 + 32);
+
+	// NOTE we need to return getters & setters
+	// NOTE since we are crossing the function boundary
+	return {
+		get c() {
+			return c;
+		},
+		get f() {
+			return f;
+		},
+		// NOTE doing this is setters enables 'bind:value' directive
+		// NOTE instead of calling a 'setXy' function 'oninput={...}'
+		set c(value: number) {
+			c = value;
+			f = (value * 9) / 5 + 32;
+		},
+		set f(value: number) {
+			f = value;
+			c = ((value - 32) * 5) / 9;
+		}
+	};
 }

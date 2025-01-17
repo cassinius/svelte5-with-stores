@@ -1,26 +1,10 @@
 <script lang="ts">
-	import { TempStore, StateGetSetTemps, DeriveEffectTemps } from '$lib/runes/temps.svelte';
+	import { TempStore, StateGetSetTemps, TempsWithRunes } from '$lib/runes/temps.svelte';
 	import { nano_c, nano_f, nano_inputs } from '$lib/nano/temps';
 
 	const { c: cStore, f: fStore, setC, setF } = TempStore(0);
 	const runeGetSetTemps = new StateGetSetTemps();
-	const runeDeriveEffectTemps = new DeriveEffectTemps();
-
-	/**
-	 * RUNES EFFECTS
-	 */
-	// NOTE for 2-way binding on RUNES
-	$effect(() => {
-		const newFVal = (runeDeriveEffectTemps.c * 9) / 5 + 32;
-		const newFLen = newFVal.toString().split('.')[1]?.length || 0;
-		runeDeriveEffectTemps.f_input.value = newFLen > 4 ? newFVal.toFixed(4) : newFVal.toString();
-	});
-	// NOTE this effect must run separately from the above effect !!
-	$effect(() => {
-		const newCVal = ((runeDeriveEffectTemps.f - 32) * 5) / 9;
-		const newCLen = newCVal.toString().split('.')[1]?.length || 0;
-		runeDeriveEffectTemps.c_input.value = newCLen > 4 ? newCVal.toFixed(4) : newCVal.toString();
-	});
+	const runesTemps = TempsWithRunes();
 
 	/**
 	 * NANOSTORES EFFECTS
@@ -37,34 +21,28 @@
 	});
 </script>
 
+<!-- SVELTE STORES -->
 <h3>Svelte store: 2-way binding</h3>
 <input type="number" bind:value={$cStore} oninput={(e) => setC(+e.currentTarget.value)} />
 <span>C =</span>
 <input type="number" bind:value={$fStore} oninput={(e) => setF(+e.currentTarget.value)} />
 <span>F</span>
 
-<h3>Runes $state + get/set: 2-way binding</h3>
+<!-- RUNES "GET/SET" -->
+<h3>Runes $state + "class get/set": 2-way binding</h3>
 <input type="number" bind:value={runeGetSetTemps.c} />
 <span>C =</span>
 <input type="number" bind:value={runeGetSetTemps.f} />
 <span>F</span>
-<!-- <br/><span>pub_f_no_getter: {getSetTemps.pubf}</span>
-<br/><span>pub_f_no_$state: {getSetTemps.pubfnostate}</span> -->
 
-<h3>Runes $state + $effect: 2-way binding</h3>
-<input
-	type="number"
-	bind:this={runeDeriveEffectTemps.c_input}
-	oninput={(e) => (runeDeriveEffectTemps.c = +e.currentTarget.value)}
-/>
+<!-- RUNES "FUNCTION" -->
+<h3>Runes $state + "func get/set": 2-way binding</h3>
+<input type="number" bind:value={runesTemps.c} />
 <span>C =</span>
-<input
-	type="number"
-	bind:this={runeDeriveEffectTemps.f_input}
-	oninput={(e) => (runeDeriveEffectTemps.f = +e.currentTarget.value)}
-/>
+<input type="number" bind:value={runesTemps.f} />
 <span>F</span>
 
+<!-- NANOSTORES ATOM -->
 <h3>Nanostores atom + $effect: 2-way binding</h3>
 <input
 	type="number"
@@ -78,21 +56,3 @@
 	oninput={(e) => nano_f.set(+e.currentTarget.value)}
 />
 <span>F</span>
-
-<!-- <h3>Runes $derived: 1-way binding</h3>
-<input type="number" bind:value={runeDeriveEffectTemps.c} />
-<span>C =</span>
-<span>{runeDeriveEffectTemps.f_derived} F</span>
-<br />
-<input type="number" bind:value={runeDeriveEffectTemps.f} />
-<span>F =</span>
-<span>{runeDeriveEffectTemps.c_derived} C</span> -->
-
-<!-- <h3>NanoStores computed: 1-way</h3>
-<input type="number" bind:value={$nano_c} />
-<span>C =</span>
-<span>{$nano_f_computed} F</span>
-<br />
-<input type="number" bind:value={$nano_f} />
-<span>F =</span>
-<span>{$nano_c_computed} C</span> -->
