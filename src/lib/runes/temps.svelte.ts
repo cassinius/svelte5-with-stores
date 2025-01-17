@@ -77,7 +77,7 @@ export class StateGetSetTemps {
 /**
  * NEW RUNES VERSION - DERIVED "hook""
  */
-export function TempsWithRunes(initialValue = 0) {
+export function useRuneTemps(initialValue = 0) {
 	let c = $state(initialValue);
 	let f = $state((initialValue * 9) / 5 + 32);
 
