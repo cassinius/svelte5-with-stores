@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { StateGetSetTemps, DeriveEffectTemps } from '$lib/runes/temps.svelte';
+	import { TempStore, StateGetSetTemps, DeriveEffectTemps } from '$lib/runes/temps.svelte';
 	import { nano_c, nano_f, nano_inputs } from '$lib/nano/temps';
 
+	const { c: cStore, f: fStore, setC, setF } = TempStore(0);
 	const runeGetSetTemps = new StateGetSetTemps();
 	const runeDeriveEffectTemps = new DeriveEffectTemps();
 
@@ -26,17 +27,21 @@
 	 */
 	$effect(() => {
 		const newFVal = ($nano_c * 9) / 5 + 32;
-		console.log('newFVal:', newFVal);
 		const newFLen = newFVal.toString().split('.')[1]?.length || 0;
 		nano_inputs.f.value = newFLen > 4 ? newFVal.toFixed(4) : newFVal.toString();
 	});
 	$effect(() => {
 		const newCVal = ($nano_f - 32) * (5 / 9);
-		console.log('newCVal:', newCVal);
 		const newCLen = newCVal.toString().split('.')[1]?.length || 0;
 		nano_inputs.c.value = newCLen > 4 ? newCVal.toFixed(4) : newCVal.toString();
 	});
 </script>
+
+<h3>Svelte store: 2-way binding</h3>
+<input type="number" bind:value={$cStore} oninput={(e) => setC(+e.currentTarget.value)} />
+<span>C =</span>
+<input type="number" bind:value={$fStore} oninput={(e) => setF(+e.currentTarget.value)} />
+<span>F</span>
 
 <h3>Runes $state + get/set: 2-way binding</h3>
 <input type="number" bind:value={runeGetSetTemps.c} />
