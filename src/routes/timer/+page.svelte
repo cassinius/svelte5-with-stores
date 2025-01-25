@@ -9,6 +9,7 @@
 	<progress class="block progress progress-success w-56" value={slider.progress} max="100"
 	></progress>
 </div>
+
 <div>Elapsed Time: {slider.e}</div>
 
 <div class="flex flex-row gap-2 items-center">
@@ -18,4 +19,4 @@
 
 <div>Duration: {slider.d}</div>
 
-<button class="btn btn-warning" onclick={() => (slider.e = 0)}>Reset</button>
+<button class="btn btn-warning mt-2 w-24" onclick={() => (slider.e = 0)}>Reset</button>
