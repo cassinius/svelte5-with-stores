@@ -1,6 +1,11 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
-@layer base {
+@plugin "daisyui" {
+	reset: false;
+	themes: cupcake --default, night --prefersdark;
+}
+
+@layer components {
 	h3 {
 		@apply my-2 text-xl font-bold;
 	}
