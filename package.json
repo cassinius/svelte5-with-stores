@@ -10,18 +10,21 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
-		"lint": "prettier --check ."
+		"lint": "prettier --check .",
+		"test": "npx vitest"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "4.0.0",
 		"@sveltejs/kit": "^2.16.1",
 		"@sveltejs/vite-plugin-svelte": "^5.0.3",
+		"@types/node": "^22.10.10",
 		"prettier": "^3.4.2",
 		"prettier-plugin-svelte": "^3.3.3",
 		"svelte": "^5.19.3",
 		"svelte-check": "^4.1.4",
 		"typescript": "^5.7.3",
-		"vite": "^6.0.11"
+		"vite": "^6.0.11",
+		"vitest": "^3.0.4"
 	},
 	"dependencies": {
 		"@tailwindcss/vite": "^4.0.0",
