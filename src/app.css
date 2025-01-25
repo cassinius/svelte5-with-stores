@@ -9,7 +9,13 @@
 	h3 {
 		@apply my-2 text-xl font-bold;
 	}
+	h4 {
+		@apply my-1 text-lg font-bold;
+	}
 	input {
 		@apply my-0.5 w-28 py-1 px-2 bg-slate-200 rounded-md;
+	}
+	input.disabled {
+		@apply bg-slate-100 text-slate-400;
 	}
 }
