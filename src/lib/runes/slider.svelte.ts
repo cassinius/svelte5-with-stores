@@ -7,46 +7,12 @@ export function useInteractiveSlider(initialDuration = 100) {
 
 	$effect(() => {
 		if (e >= d) {
-			clearAndDeleteInterval();
+			clearInterval(interval);
+			interval = null!;
+		} else if (!interval) {
+			interval = setInterval(() => e++, 100);
 		}
 	});
-
-	// TODO: is this automatically batched? since it seems to 'block' while we slide the range...
-	// NOTE: NO, but we are clearing the timeout manually on every value change...
-	// $effect(() => {
-	// 	if (e >= d) {
-	// 		return;
-	// 	} else {
-	// 		timeout = setTimeout(() => e++, 100);
-	// 	}
-	// });
-
-	const incrementFunc = () => e++;
-
-	const clearAndDeleteInterval = () => {
-		clearInterval(interval);
-		interval = null!;
-	};
-
-	function handleDC(ev: Event) {
-		ev.preventDefault();
-		d = parseInt((ev.currentTarget as HTMLInputElement).value);
-		if (e < d && !interval) {
-			interval = setInterval(incrementFunc, 100);
-		}
-	}
-
-	function handleReset(ev: Event) {
-		ev.preventDefault();
-		e = 0;
-		if (!interval) {
-			interval = setInterval(incrementFunc, 100);
-		}
-	}
-
-	const start = () => {
-		interval = setInterval(incrementFunc, 100);
-	};
 
 	return {
 		get e() {
@@ -63,9 +29,6 @@ export function useInteractiveSlider(initialDuration = 100) {
 		},
 		get progress() {
 			return progress;
-		},
-		handleDC,
-		handleReset,
-		start
+		}
 	};
 }
