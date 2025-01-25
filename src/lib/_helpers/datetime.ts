@@ -1,5 +1,5 @@
 export function formatDate(date: Date) {
-	console.log('formatDate', date);
+	// console.log('formatDate', date);
 
 	if (!date) return '';
 
