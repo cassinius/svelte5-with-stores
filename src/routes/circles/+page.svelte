@@ -1,80 +1,27 @@
 <script lang="ts">
-	type Circle = {
-		id: string;
-		cx: number;
-		cy: number;
-		r: number;
-		fill: string;
-	};
-	let circles = $state<Circle[]>([]);
-	let snapshots: Circle[][] = [];
-	let history = $state(-1);
-	$inspect({ snapshots, history });
+	import { browser } from '$app/environment';
+	import { onMount } from 'svelte';
 
-	type Status = 'drawing' | 'editing';
-	let status = $state<Status>('drawing');
+	import { useRuneCircles } from '$lib/runes/circles.svelte';
 
-	let svg: SVGElement;
+	const circles = useRuneCircles();
 
-	let selected: Circle = $state(null!);
-	// $inspect({ selected });
-	// NOTE compare circles at the end of an edit & only snapshot when they differ
-	let backup: Circle = $state(null!);
+	onMount(() => {
+		if (!browser) {
+			return;
+		}
 
-	function drawCircle(e: MouseEvent) {
-		// console.log('drawCircle', e);
-		if (status !== 'drawing') {
-			status = 'drawing';
-			if (JSON.stringify(selected) !== JSON.stringify(backup)) {
-				snapshot();
+		window.onkeyup = (e) => {
+			if (e.key === 'ArrowLeft' && e.ctrlKey) {
+				e.preventDefault();
+				circles.undo();
 			}
-			selected = null!;
-			return;
-		}
-		if (selected) {
-			return;
-		}
-		const { top, left } = svg.getBoundingClientRect();
-		const newCircle: Circle = {
-			id: window.crypto.randomUUID(),
-			cx: +(e.clientX - left).toFixed(),
-			cy: +(e.clientY - top).toFixed(),
-			r: 20,
-			fill: 'transparent'
+			if (e.key === 'ArrowRight' && e.ctrlKey) {
+				e.preventDefault();
+				circles.redo();
+			}
 		};
-		circles = [...circles, newCircle];
-		snapshot();
-	}
-
-	function snapshot() {
-		history++;
-		snapshots.push($state.snapshot(circles));
-	}
-
-	function undo() {
-		if (history < 0) {
-			return;
-		}
-		circles = snapshots[--history];
-	}
-
-	function redo() {
-		if (history >= snapshots.length - 1) {
-			return;
-		}
-		circles = snapshots[++history];
-	}
-
-	window.onkeyup = (e) => {
-		if (e.key === 'ArrowLeft' && e.ctrlKey) {
-			e.preventDefault();
-			undo();
-		}
-		if (e.key === 'ArrowRight' && e.ctrlKey) {
-			e.preventDefault();
-			redo();
-		}
-	};
+	});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -82,57 +29,61 @@
 	<h3 class="block mb-4 text-white text-3xl underline text-center">Circles</h3>
 
 	<div class="flex flex-row gap-2 justify-center">
-		<button class="w-32 btn btn-warning btn-sm" disabled={history < 0} onclick={undo}>Undo</button>
+		<button
+			class="w-32 btn btn-warning btn-sm"
+			disabled={circles.history < 0}
+			onclick={circles.undo}>Undo</button
+		>
 		<button
 			class="w-32 btn btn-success btn-sm"
-			disabled={history >= snapshots.length - 1}
-			onclick={redo}>Redo</button
+			disabled={circles.history >= circles.snapshots.length - 1}
+			onclick={circles.redo}>Redo</button
 		>
 	</div>
 
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<svg
-		bind:this={svg}
+		bind:this={circles.svg}
 		class="circle-svg m-4 bg-slate-700 rounded-xl hover:cursor-crosshair"
 		viewBox="0 0 640 480"
-		onclick={drawCircle}
+		onclick={circles.drawCircle}
 	>
-		{#each circles as circle (circle.id)}
+		{#each circles.circles as circle (circle.id)}
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<circle
 				{...circle}
-				stroke={selected === circle ? '#ff0000' : 'white'}
+				stroke={circles.selected === circle ? '#ff0000' : 'white'}
 				stroke-width="1"
 				onmouseover={() => {
-					if (status === 'editing') {
+					if (circles.status === 'editing') {
 						return;
 					}
-					selected = circle;
+					circles.selected = circle;
 				}}
 				class="hover:cursor-pointer"
 				onmouseout={() => {
-					if (status !== 'editing') {
-						selected = null!;
+					if (circles.status !== 'editing') {
+						circles.selected = null!;
 					}
 				}}
 				onclick={(e) => {
 					e.stopPropagation();
 					console.log('clicked circle');
-					backup = { ...circle };
-					status = 'editing';
+					circles.backup = { ...circle };
+					circles.status = 'editing';
 				}}
 				oncontextmenu={(e) => {
 					e.preventDefault();
 					e.stopPropagation();
-					backup = { ...circle };
-					status = 'editing';
+					circles.backup = { ...circle };
+					circles.status = 'editing';
 				}}
 			/>
 		{/each}
 	</svg>
 
-	{#if selected && status === 'editing'}
+	{#if circles.selected && circles.status === 'editing'}
 		<div class="adjust">
 			<div class="flex flex-row gap-4 justify-center items-center">
 				<p class="text-lg text-white">Adjust Radius:</p>
@@ -142,13 +93,16 @@
 					min="5"
 					max="100"
 					step="1"
-					bind:value={selected.r}
+					bind:value={circles.selected.r}
 				/>
-				<button class="btn btn-xs bg-red-600" onclick={() => (selected.fill = '#ff0000')}>R</button>
-				<button class="btn btn-xs bg-green-600" onclick={() => (selected.fill = '#00ff00')}
+				<button class="btn btn-xs bg-red-600" onclick={() => (circles.selected.fill = '#ff0000')}
+					>R</button
+				>
+				<button class="btn btn-xs bg-green-600" onclick={() => (circles.selected.fill = '#00ff00')}
 					>G</button
 				>
-				<button class="btn btn-xs bg-blue-600" onclick={() => (selected.fill = '#0000ff')}>B</button
+				<button class="btn btn-xs bg-blue-600" onclick={() => (circles.selected.fill = '#0000ff')}
+					>B</button
 				>
 			</div>
 		</div>
