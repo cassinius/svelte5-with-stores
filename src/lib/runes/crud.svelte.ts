@@ -12,17 +12,17 @@ export function createSvelteCrud() {
 		{ name: 'Bal', surname: 'Bal' }
 	]);
 
-	const newUser = $state<User>({ name: '', surname: '' });
+	let crudUser = $state<User>({ name: '', surname: '' });
 
 	const userEq = (a: User, b: User) => a?.name === b?.name && a?.surname === b?.surname;
 
-	const dupeUser = $derived<boolean>(users.filter((u) => userEq(u, newUser)).length > 0);
+	const dupeUser = $derived<boolean>(users.filter((u) => userEq(u, crudUser)).length > 0);
 
 	let selectedUser: User = $state(null!);
 
 	$effect(() => {
-		newUser.name = selectedUser?.name ?? '';
-		newUser.surname = selectedUser?.surname ?? '';
+		console.log('Selected user changed, updating crudUser');
+		crudUser = { ...selectedUser };
 	});
 
 	let searchVal = $state('');
@@ -33,51 +33,46 @@ export function createSvelteCrud() {
 		})
 	);
 
-	const selUserInFilter = $derived<boolean>(
-		filteredUsers.filter((u) => userEq(u, selectedUser)).length > 0
-	);
 	$effect(() => {
-		if (!selUserInFilter) {
+		if (filteredUsers.filter((u) => userEq(u, selectedUser)).length === 0) {
 			selectedUser = null!;
 		}
 	});
-	// $inspect({ selectedUser, newUser, dupeUser, selUserInFilter });
+	// $inspect({ selectedUser, crudUser, dupeUser });
 
 	function createUser() {
 		if (dupeUser) {
 			errMsg = 'User already exists';
 			return;
 		}
-		if (newUser.name === '' || newUser.surname === '') {
+		if (crudUser.name === '' || crudUser.surname === '') {
 			errMsg = 'Name and surname must be filled';
 			return;
 		}
-		if (newUser.name.length < 3 || newUser.surname.length < 3) {
+		if (crudUser.name.length < 3 || crudUser.surname.length < 3) {
 			errMsg = 'Name and surname must be at least 3 characters long';
 			return;
 		}
 
-		users.push({ ...newUser });
-		newUser.name = '';
-		newUser.surname = '';
+		users.push({ ...crudUser });
+		crudUser = { name: '', surname: '' };
 		successMsg = 'User created.';
-		errMsg = '';
+		errMsg = null;
 	}
 
 	function updateUser() {
 		if (selectedUser) {
-			if (newUser.name === '' || newUser.surname === '') {
+			if (crudUser.name === '' || crudUser.surname === '') {
 				errMsg = 'Name and surname must be filled';
 				return;
 			}
-			if (newUser.name.length < 3 || newUser.surname.length < 3) {
+			if (crudUser.name.length < 3 || crudUser.surname.length < 3) {
 				errMsg = 'Name and surname must be at least 3 characters long';
 				return;
 			}
-			selectedUser.name = newUser.name;
-			selectedUser.surname = newUser.surname;
+			selectedUser = { ...crudUser };
 			successMsg = 'User updated.';
-			errMsg = '';
+			errMsg = null;
 		}
 	}
 
@@ -86,20 +81,29 @@ export function createSvelteCrud() {
 			users.splice(users.indexOf(selectedUser), 1);
 			selectedUser = null!;
 			successMsg = 'User deleted.';
-			errMsg = '';
+			errMsg = null;
 		}
 	}
 
-	let successMsg = $state<string>(null!);
-	let errMsg = $state<string>(null!);
+	let successMsg = $state<string | null>(null);
+	let errMsg = $state<string | null>(null);
+	$effect(() => {
+		// console.log('start timeout to clear msgs');
+		if (successMsg || errMsg) {
+			setTimeout(() => {
+				successMsg = null;
+				errMsg = null;
+			}, 3000);
+		}
+	});
 
 	return {
 		// NOTE we expose the internal state only for testing...
 		// get users() {
 		// 	return users;
 		// },
-		get newUser() {
-			return newUser;
+		get crudUser() {
+			return crudUser;
 		},
 		get selectedUser() {
 			return selectedUser;

@@ -17,10 +17,10 @@ test('basic crud example properties', () => {
 	expect(crud.filteredUsers).not.toBeNull();
 	expect(crud.filteredUsers.length).toBe(5);
 
-	expect(crud.newUser).toBeDefined();
-	expect(crud.newUser).not.toBeNull();
-	expect(crud.newUser.name).toBe('');
-	expect(crud.newUser.surname).toBe('');
+	expect(crud.crudUser).toBeDefined();
+	expect(crud.crudUser).not.toBeNull();
+	expect(crud.crudUser.name).toBe('');
+	expect(crud.crudUser.surname).toBe('');
 
 	expect(crud.selectedUser).toBeDefined();
 	expect(crud.selectedUser).toBeNull();
@@ -30,8 +30,8 @@ test('basic crud example properties', () => {
 });
 
 test('create user', () => {
-	crud.newUser.name = 'Holy';
-	crud.newUser.surname = 'Moly';
+	crud.crudUser.name = 'Holy';
+	crud.crudUser.surname = 'Moly';
 
 	crud.createUser();
 
@@ -44,8 +44,8 @@ test('create user', () => {
 	// expect(crud.users[5].name).toBe('Holy');
 	// expect(crud.users[5].surname).toBe('Moly');
 
-	expect(crud.newUser.name).toBe('');
-	expect(crud.newUser.surname).toBe('');
+	expect(crud.crudUser.name).toBe('');
+	expect(crud.crudUser.surname).toBe('');
 
 	// NOTE we need to wait a few ms for the $effect to run
 	setTimeout(() => {
