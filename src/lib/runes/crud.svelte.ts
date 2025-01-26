@@ -4,6 +4,7 @@ export type User = {
 };
 
 export function createSvelteCrud() {
+	// NOTE 'users' is internal state we do not expose to the world
 	const users = $state<User[]>([
 		{ name: 'John', surname: 'Doe' },
 		{ name: '& Joseph', surname: 'Jesus Mary' },
@@ -14,18 +15,13 @@ export function createSvelteCrud() {
 
 	let crudUser = $state<User>({ name: '', surname: '' });
 
-	const userEq = (a: User, b: User) => a?.name === b?.name && a?.surname === b?.surname;
-
-	const dupeUser = $derived<boolean>(users.filter((u) => userEq(u, crudUser)).length > 0);
-
 	let selectedUser: User = $state(null!);
 
-	$effect(() => {
-		console.log('Selected user changed, updating crudUser');
-		crudUser = { ...selectedUser };
-	});
-
 	let searchVal = $state('');
+
+	let successMsg = $state<string | null>(null);
+
+	let errMsg = $state<string | null>(null);
 
 	const filteredUsers = $derived(
 		users.filter((user) => {
@@ -33,14 +29,38 @@ export function createSvelteCrud() {
 		})
 	);
 
+	const userEq = (a: User, b: User) => a?.name === b?.name && a?.surname === b?.surname;
+
+	const dupeUser = $derived<boolean>(users.filter((u) => userEq(u, crudUser)).length > 0);
+
 	$effect(() => {
+		if (selectedUser) {
+			// console.log('Selected user changed, updating crudUser');
+			crudUser = { ...selectedUser };
+		}
+	});
+
+	$effect(() => {
+		// console.log('filtered users changed, checking selectedUser');
 		if (filteredUsers.filter((u) => userEq(u, selectedUser)).length === 0) {
 			selectedUser = null!;
+			crudUser = { name: '', surname: '' };
 		}
 	});
 	// $inspect({ selectedUser, crudUser, dupeUser });
 
+	$effect(() => {
+		// console.log('start timeout to clear msgs');
+		if (successMsg || errMsg) {
+			setTimeout(() => {
+				successMsg = null;
+				errMsg = null;
+			}, 3000);
+		}
+	});
+
 	function createUser() {
+		console.log({ crudUser });
 		if (dupeUser) {
 			errMsg = 'User already exists';
 			return;
@@ -70,7 +90,8 @@ export function createSvelteCrud() {
 				errMsg = 'Name and surname must be at least 3 characters long';
 				return;
 			}
-			selectedUser = { ...crudUser };
+			users.splice(users.indexOf(selectedUser), 1, { ...crudUser });
+			// console.log({ filteredUsers });
 			successMsg = 'User updated.';
 			errMsg = null;
 		}
@@ -85,23 +106,7 @@ export function createSvelteCrud() {
 		}
 	}
 
-	let successMsg = $state<string | null>(null);
-	let errMsg = $state<string | null>(null);
-	$effect(() => {
-		// console.log('start timeout to clear msgs');
-		if (successMsg || errMsg) {
-			setTimeout(() => {
-				successMsg = null;
-				errMsg = null;
-			}, 3000);
-		}
-	});
-
 	return {
-		// NOTE we expose the internal state only for testing...
-		// get users() {
-		// 	return users;
-		// },
 		get crudUser() {
 			return crudUser;
 		},

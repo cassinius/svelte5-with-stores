@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { fly, fade } from 'svelte/transition';
+	import { fly, fade, slide } from 'svelte/transition';
 
 	import { createSvelteCrud } from '$lib/runes/crud.svelte';
 
@@ -64,21 +64,28 @@
 			>
 		</div>
 
-		{#if crud.successMsg}
-			<div class="mt-2 text-green-400" in:fly={{ y: -100, duration: 300 }} out:fade>
-				{crud.successMsg}
-			</div>
-		{/if}
+		{#if crud.successMsg || crud.errMsg}
+			<div class="crud-msgs-wrap mt-2 h-10" transition:slide>
+				{#if crud.successMsg}
+					<div class="text-green-400" in:fly={{ y: -100, duration: 300 }} out:fade>
+						{crud.successMsg}
+					</div>
+				{/if}
 
-		{#if crud.errMsg}
-			<div class="mt-2 text-red-400" in:fly={{ y: -100, duration: 300 }} out:fade>
-				{crud.errMsg}
+				{#if crud.errMsg}
+					<div class="text-red-400" in:fly={{ y: -100, duration: 300 }} out:fade>
+						{crud.errMsg}
+					</div>
+				{/if}
 			</div>
 		{/if}
 	</div>
 </div>
 
 <style>
+	/* .crud-msgs-wrap {
+		transition: height 0.3s;
+	} */
 	.user.active {
 		background-color: #132e9b;
 		color: white;
