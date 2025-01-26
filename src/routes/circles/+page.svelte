@@ -6,7 +6,10 @@
 		r: number;
 		fill: string;
 	};
-	let circles = $state<Circle[]>([{ id: '1', cx: 100, cy: 100, r: 20, fill: 'transparent' }]);
+	let circles = $state<Circle[]>([]);
+	let snapshots: Circle[][] = [];
+	let history = $state(-1);
+	$inspect({ snapshots, history });
 
 	type Status = 'drawing' | 'editing';
 	let status = $state<Status>('drawing');
@@ -14,14 +17,15 @@
 	let svg: SVGElement;
 
 	let selected: Circle = $state(null!);
-	$inspect({ selected });
+	// $inspect({ selected });
 
 	function drawCircle(e: MouseEvent) {
-		console.log('drawCircle', e);
+		// console.log('drawCircle', e);
 
 		if (status !== 'drawing') {
 			status = 'drawing';
 			selected = null!;
+			snapshot();
 			return;
 		}
 		if (selected) {
@@ -33,10 +37,41 @@
 			cx: +(e.clientX - left).toFixed(),
 			cy: +(e.clientY - top).toFixed(),
 			r: 20,
-      fill: 'transparent'
+			fill: 'transparent'
 		};
 		circles = [...circles, newCircle];
+		snapshot();
 	}
+
+	function snapshot() {
+		history++;
+		snapshots.push($state.snapshot(circles));
+	}
+
+	function undo() {
+		if (history < 0) {
+			return;
+		}
+		circles = snapshots[--history];
+	}
+
+	function redo() {
+		if (history >= snapshots.length - 1) {
+			return;
+		}
+		circles = snapshots[++history];
+	}
+
+	window.onkeyup = (e) => {
+		if (e.key === 'z' && e.ctrlKey) {
+			e.preventDefault();
+			undo();
+		}
+		if (e.key === 'y' && e.ctrlKey) {
+			e.preventDefault();
+			redo();
+		}
+	};
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -44,8 +79,12 @@
 	<h3 class="block mb-4 text-white text-3xl underline text-center">Circles</h3>
 
 	<div class="flex flex-row gap-2 justify-center">
-		<button class="w-32 btn btn-warning btn-sm">Undo</button>
-		<button class="w-32 btn btn-success btn-sm">Redo</button>
+		<button class="w-32 btn btn-warning btn-sm" disabled={history < 0} onclick={undo}>Undo</button>
+		<button
+			class="w-32 btn btn-success btn-sm"
+			disabled={history >= snapshots.length - 1}
+			onclick={redo}>Redo</button
+		>
 	</div>
 
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -62,7 +101,12 @@
 				{...circle}
 				stroke={selected === circle ? '#ff0000' : 'white'}
 				stroke-width="1"
-				onmouseover={() => (selected = circle)}
+				onmouseover={() => {
+					if (status === 'editing') {
+						return;
+					}
+					selected = circle;
+				}}
 				class="hover:cursor-pointer"
 				onmouseout={() => {
 					if (status !== 'editing') {
@@ -85,7 +129,7 @@
 
 	{#if selected && status === 'editing'}
 		<div class="adjust">
-			<div class="flex flex-row gap-4 justify-center align-middle">
+			<div class="flex flex-row gap-4 justify-center items-center">
 				<p class="text-lg">Adjust Radius:</p>
 				<input type="range" class="w-72" min="5" max="100" step="1" bind:value={selected.r} />
 				<button class="btn btn-xs bg-red-600" onclick={() => (selected.fill = '#ff0000')}>R</button>
