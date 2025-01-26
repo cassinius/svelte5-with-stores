@@ -22,7 +22,7 @@
 	} = useNanoFlights();
 </script>
 
-<div class="flex flex-row gap-4">
+<div class="page-content-wrap flex-row gap-4">
 	<div class="flex flex-col gap-2">
 		<h3>Rune Flights</h3>
 		<select bind:value={runy.mode} class="w-32 rounded">
