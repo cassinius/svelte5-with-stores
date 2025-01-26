@@ -18,14 +18,17 @@
 
 	let selected: Circle = $state(null!);
 	// $inspect({ selected });
+	// NOTE compare circles at the end of an edit & only snapshot when they differ
+	let backup: Circle = $state(null!);
 
 	function drawCircle(e: MouseEvent) {
 		// console.log('drawCircle', e);
-
 		if (status !== 'drawing') {
 			status = 'drawing';
+			if (JSON.stringify(selected) !== JSON.stringify(backup)) {
+				snapshot();
+			}
 			selected = null!;
-			snapshot();
 			return;
 		}
 		if (selected) {
@@ -63,11 +66,11 @@
 	}
 
 	window.onkeyup = (e) => {
-		if (e.key === 'z' && e.ctrlKey) {
+		if (e.key === 'ArrowLeft' && e.ctrlKey) {
 			e.preventDefault();
 			undo();
 		}
-		if (e.key === 'y' && e.ctrlKey) {
+		if (e.key === 'ArrowRight' && e.ctrlKey) {
 			e.preventDefault();
 			redo();
 		}
@@ -116,11 +119,13 @@
 				onclick={(e) => {
 					e.stopPropagation();
 					console.log('clicked circle');
+					backup = { ...circle };
 					status = 'editing';
 				}}
 				oncontextmenu={(e) => {
 					e.preventDefault();
 					e.stopPropagation();
+					backup = { ...circle };
 					status = 'editing';
 				}}
 			/>
@@ -130,8 +135,15 @@
 	{#if selected && status === 'editing'}
 		<div class="adjust">
 			<div class="flex flex-row gap-4 justify-center items-center">
-				<p class="text-lg">Adjust Radius:</p>
-				<input type="range" class="w-72" min="5" max="100" step="1" bind:value={selected.r} />
+				<p class="text-lg text-white">Adjust Radius:</p>
+				<input
+					type="range"
+					class="w-72 bg-red-400"
+					min="5"
+					max="100"
+					step="1"
+					bind:value={selected.r}
+				/>
 				<button class="btn btn-xs bg-red-600" onclick={() => (selected.fill = '#ff0000')}>R</button>
 				<button class="btn btn-xs bg-green-600" onclick={() => (selected.fill = '#00ff00')}
 					>G</button
