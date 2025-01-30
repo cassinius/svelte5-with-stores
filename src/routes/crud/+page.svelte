@@ -57,7 +57,7 @@
 	</div>
 
 	{#if crud.successMsg || crud.errMsg}
-		<div class="crud-msgs-wrap mt-2 h-10 bg-slate-600" transition:slide>
+		<div class="crud-msgs-wrap mt-2 h-10" transition:slide>
 			{#if crud.successMsg}
 				<div class="text-green-400" in:fly={{ y: -100, duration: 300 }} out:fade>
 					{crud.successMsg}
