@@ -23,6 +23,8 @@ export function createSvelteCrud() {
 
 	let errMsg = $state<string | null>(null);
 
+	let msgTimeout: number = null!;
+
 	const filteredUsers = $derived(
 		users.filter((user) => {
 			return user.surname.toLowerCase().includes(searchVal.toLowerCase());
@@ -52,7 +54,11 @@ export function createSvelteCrud() {
 	$effect(() => {
 		// console.log('start timeout to clear msgs');
 		if (successMsg || errMsg) {
-			setTimeout(() => {
+			if (msgTimeout) {
+				clearTimeout(msgTimeout);
+			}
+
+			msgTimeout = window.setTimeout(() => {
 				successMsg = null;
 				errMsg = null;
 			}, 3000);
