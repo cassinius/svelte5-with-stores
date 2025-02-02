@@ -24,6 +24,6 @@
 		@apply bg-red-100 text-red-400;
 	}
 	.page-content-wrap {
-		@apply flex flex-col justify-start p-6 bg-slate-800 rounded-lg;
+		@apply flex flex-col justify-start p-6 bg-slate-200 dark:bg-slate-800 rounded-lg;
 	}
 }

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { TempStore, StateGetSetTemps, useRuneTemps } from '$lib/runes/temps.svelte';
+	import { useTempStore, StateGetSetTemps, useRuneTemps } from '$lib/runes/temps.svelte';
 	import { useNanoTemps } from '$lib/nano/temps';
 
-	const { c: cStore, f: fStore, setC: storeSetC, setF: storeSetF } = TempStore(0);
+	const { c: cStore, f: fStore, setC: storeSetC, setF: storeSetF } = useTempStore(0);
 	const getSetTemps = new StateGetSetTemps();
 	const runesTemps = useRuneTemps();
 	let { c: nanoC, f: nanoF, setC: nanoSetC, setF: nanoSetF } = useNanoTemps();

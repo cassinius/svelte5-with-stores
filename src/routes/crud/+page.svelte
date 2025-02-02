@@ -11,7 +11,7 @@
 <div class="page-content-wrap">
 	<div class="crud-col-wrap flex flex-row gap-4 justify-center items-start">
 		<div class="left-col flex flex-col">
-			<h3 class="text-white text-2xl underline">CRUnesD</h3>
+			<h3 class="text-2xl underline">CRUnesD</h3>
 			<input
 				type="text"
 				class="w-42 mb-2"
@@ -36,7 +36,7 @@
 		</div>
 
 		<div class="right-col flex flex-col gap-1 items-start text-sm">
-			<div class="mt-4 text-lg text-white w-100% text-left italic">Crud User</div>
+			<div class="mt-4 text-lg w-100% text-left italic">Crud User</div>
 
 			<input type="text" class="w-42" bind:value={crud.crudUser.name} placeholder="Name" />
 
@@ -77,5 +77,6 @@
 	.user.active {
 		background-color: #132e9b;
 		color: white;
+		border-radius: 3px;
 	}
 </style>

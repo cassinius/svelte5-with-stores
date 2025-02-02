@@ -3,12 +3,13 @@ import { writable } from 'svelte/store';
 /**
  * OLD STORE VERSION
  */
-export function TempStore(initialValue: number) {
+export function useTempStore(initialValue: number) {
 	const c = writable(initialValue);
 	const f = writable(initialValue * (9 / 5) + 32);
 
 	// intercept the update to c
 	// TODO does below code mean that internally, f is updated before c?
+	// TODO this updates the "other" value lagging one step behind !?
 	function updateC(updater: (c: number) => number) {
 		c.update((newCVal) => {
 			// ...in order to update f in the process
@@ -21,7 +22,7 @@ export function TempStore(initialValue: number) {
 	function updateF(updater: (f: number) => number) {
 		f.update((newFVal) => {
 			// ...in order to update c in the process
-			c.set(newFVal - 32 * (5 / 9));
+			c.set(((newFVal - 32) * 5) / 9);
 			// ...and then return the new f value
 			return updater(newFVal);
 		});
@@ -29,12 +30,18 @@ export function TempStore(initialValue: number) {
 
 	function setC(newCVal: number) {
 		// this is where we define the updater function for the updateC function above
-		updateC(() => newCVal);
+		// updateC(() => newCVal);
+
+		c.set(newCVal);
+		f.set(newCVal * (9 / 5) + 32);
 	}
 
 	function setF(newFVal: number) {
 		// this is where we define the updater function for the updateF function above
 		updateF(() => newFVal);
+
+		f.set(newFVal);
+		c.set(((newFVal - 32) * 5) / 9);
 	}
 
 	return {

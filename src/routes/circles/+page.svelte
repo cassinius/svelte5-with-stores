@@ -6,6 +6,13 @@
 
 	const circles = useRuneCircles();
 
+	let darkMode = $state(false);
+	if (browser) {
+		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
+			darkMode = event.matches;
+		});
+	}
+
 	onMount(() => {
 		if (!browser) {
 			return;
@@ -26,7 +33,7 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="page-content-wrap">
-	<h3 class="block mb-4 text-white text-3xl underline text-center">Circles</h3>
+	<h3 class="block mb-4 text-3xl underline text-center">Circles</h3>
 
 	<div class="flex flex-row gap-2 justify-center">
 		<button
@@ -44,7 +51,7 @@
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<svg
 		bind:this={circles.svg}
-		class="circle-svg m-4 bg-slate-700 rounded-xl hover:cursor-crosshair"
+		class="circle-svg m-4 bg-slate-300 dark:bg-slate-700 rounded-xl hover:cursor-crosshair"
 		viewBox="0 0 640 480"
 		onclick={circles.drawCircle}
 	>
@@ -53,7 +60,8 @@
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<circle
 				{...circle}
-				stroke={circles.selected === circle ? '#ff0000' : 'white'}
+				class="hover:cursor-pointer"
+				stroke={circles.selected === circle ? '#ff0000' : darkMode ? '#ffffff' : '#000000'}
 				stroke-width="1"
 				onmouseover={() => {
 					if (circles.status === 'editing') {
@@ -61,7 +69,6 @@
 					}
 					circles.selected = circle;
 				}}
-				class="hover:cursor-pointer"
 				onmouseout={() => {
 					if (circles.status !== 'editing') {
 						circles.selected = null!;
