@@ -4,7 +4,7 @@ import { createSvelteCrud, type User } from '../src/lib/runes/crud.svelte';
 let crud: ReturnType<typeof createSvelteCrud>;
 
 beforeEach(() => {
-	// TODO why is the typing wrong !?
+	// TODO why is the typing wrong (any's...) ?!
 	crud = createSvelteCrud();
 });
 
@@ -37,7 +37,7 @@ test('create user', () => {
 
 	// console.log(crud.filteredUsers);
 
-	expect(crud.errMsg).toBe('');
+	expect(crud.errMsg).toBe(null);
 	expect(crud.successMsg).toBe('User created.');
 
 	// expect(crud.users.length).toBe(6);
